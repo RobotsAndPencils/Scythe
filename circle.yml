@@ -2,7 +2,5 @@ machine:
   xcode:
     version: 8.3.3
 test:
-  pre:
-    - xcrun instruments -w "iPhone 7" || echo "Launch Simulator" # less time out failures
   override:
     - bundle exec fastlane test
