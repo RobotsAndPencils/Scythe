@@ -10,5 +10,45 @@ platform :mac do
       include_simulator_logs: false # Works around a regression: https://github.com/fastlane/fastlane/issues/8136
     )
   end
+
+  desc "Build and release a new build version to GitHub"
+  lane :release do
+    api_token = prompt(
+      text: "Enter your GitHub API token for uploading the release: "
+    )
+    ensure_git_status_clean
+    build_number = increment_build_number
+    commit_version_bump(
+      message: "Bump build number to #{build_number}",
+      xcodeproj: "Scythe.xcodeproj"
+    )
+
+    xcarchive(
+      workspace: "Scythe.xcworkspace",
+      scheme: "Scythe",
+      configuration: "Release"
+    )
+
+    sh "pushd ../Scythe.xcarchive/Products/Applications; zip -r ../../../Scythe.app.zip *; popd"
+
+    push_to_git_remote
+    tag_name = "builds/#{build_number}"
+    set_github_release(
+      repository_name: "RobotsAndPencils/Scythe",
+      commitish: "master",
+      api_token: api_token,
+      tag_name: tag_name,
+      name: tag_name,
+      description: tag_name,
+      is_draft: true,
+      upload_assets: ["Scythe.app.zip"]
+    )
+
+    reset_git_repo
+
+    unless ENV["CIRCLECI"]
+      sh "open #{lane_context[SharedValues::SET_GITHUB_RELEASE_HTML_LINK]}"
+    end
+  end
 end
 

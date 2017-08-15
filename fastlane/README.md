@@ -35,6 +35,11 @@ xcode-select --install
 fastlane mac test
 ```
 Runs all the tests
+### mac release
+```
+fastlane mac release
+```
+Build and release a new build version to GitHub
 
 ----
 
