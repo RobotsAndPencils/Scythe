@@ -1,0 +1,14 @@
+fastlane_version "2.53.1"
+default_platform :mac
+
+platform :mac do
+  desc "Runs all the tests"
+  lane :test do
+    scan(
+      scheme: "Scythe",
+      skip_build: true,
+      include_simulator_logs: false # Works around a regression: https://github.com/fastlane/fastlane/issues/8136
+    )
+  end
+end
+
